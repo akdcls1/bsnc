@@ -46,8 +46,8 @@ body {
 }
 
 img{
-    width:100%;
-    max-height:800px;
+    max-height:600px;
+    height: 400px;
     object-fit:contain;
     border-radius:15px;
     margin:15px 0;
@@ -117,20 +117,38 @@ const QUESTIONS = [
 { text:"임시 문항 7", img:"", answers:["임시1","임시2"] },
 { text:"임시 문항 8", img:"", answers:["임시1","임시2"] },
 { text:"임시 문항 9", img:"", answers:["임시1","임시2"] },
-{ text:"방생네컷 사랑하시나요", img:"image/bsnc.png", answers:["예","예"] }
+{ text:"활동 열심히 하실거죠?", img:"image/bsnc.png", answers:["예","예"] }
 ];
 
 const A_RESULTS = [
-{ title:"가암성당", img:"image/garm.png", desc:"가암성당" },
-{ title:"아야코", img:"image/ayako.png", desc:"아야코" },
-{ title:"우정", img:"image/oohjung.png", desc:"우정" }
+{ title:"가암성당", img:"image/horror/garm.png", desc:"가암성당" },
+{ title:"아야코", img:"image/horror/ayako.png", desc:"아야코" },
+{ title:"우정", img:"image/horror/oohjung.png", desc:"우정" },
+{ title:"투투 어드벤처", img:"image/horror/tootoo.png", desc:"투투 어드벤처" },
+{ title:"슬래셔", img:"image/horror/slasher.png", desc:"슬래셔" },
+{ title:"당신 없이는", img:"image/horror/withoutyou.png", desc:"당신 없이는" },
+{ title:"제일기숙학원", img:"image/horror/jeil.png", desc:"제일기숙학원" },
+{ title:"피그", img:"image/horror/pig.png", desc:"피그" },
+{ title:"피노키오", img:"image/horror/pinocchio.png", desc:"피노키오" },
+{ title:"생존자", img:"image/horror/survivor.png", desc:"생존자" },
+{ title:"버디", img:"image/horror/buddy.png", desc:"버디" },
+{ title:"선택", img:"image/horror/choice.png", desc:"선택" },
+{ title:"하피스 캔디샵", img:"image/horror/harpy's.jpg", desc:"하피스 캔디샵" }
 ];
 
 const B_RESULTS = [
-{ title:"머니머니패키지", img:"image/mmpakage.png", desc:"머니머니패키지" },
-{ title:"필름 바이 에디", img:"image/f-eddy.png", desc:"필름 바이 에디" },
-{ title:"필름 바이 스티브", img:"image/f-steve.png", desc:"필름 바이 스티브" },
-{ title:"필름 바이 밥", img:"image/f-bob.png", desc:"필름 바이 밥" }
+{ title:"머니머니패키지", img:"image/out horror/mmpakage.png", desc:"머니머니패키지" },
+{ title:"필름 바이 에디", img:"image/out horror/f-eddy.png", desc:"필름 바이 에디" },
+{ title:"필름 바이 스티브", img:"image/out horror/f-steve.png", desc:"필름 바이 스티브" },
+{ title:"필름 바이 밥", img:"image/out horror/f-bob.png", desc:"필름 바이 밥" },
+{ title:"쿠키", img:"image/out horror/cookie.png", desc:"쿠키" },
+{ title:"두껍아 두껍아 헌집줄게 새집다오", img:"image/out horror/dudu.png", desc:"두껍아 두껍아 헌집줄게 새집다오" },
+{ title:"메가 게임", img:"image/out horror/mega-game.png", desc:"메가 게임" },
+{ title:"퀴즈 카페", img:"image/out horror/quiz-cafe.png", desc:"퀴즈 카페" },
+{ title:"게임의 법칙", img:"image/out horror/rule-game.png", desc:"게임의 법칙" },
+{ title:"사요나라 세이코!", img:"image/out horror/seiko.jpg", desc:"사요나라 세이코!" },
+{ title:"바야흐로, 여름이었다.", img:"image/out horror/summer.jpg", desc:"바야흐로, 여름이었다." },
+{ title:"용팔도령", img:"image/out horror/yong8.png", desc:"용팔도령" }
 ];
 
 function loadQuestion(){
