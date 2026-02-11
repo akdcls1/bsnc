@@ -47,8 +47,8 @@ body {
 
 img{
     width:100%;
-    max-height:220px;
-    object-fit:cover;
+    max-height:800px;
+    object-fit:contain;
     border-radius:15px;
     margin:15px 0;
     background:#eee;
@@ -94,6 +94,9 @@ button{
     <h2 id="resultTitle"></h2>
     <img id="resultImage">
     <p id="resultDesc"></p>
+
+   <button onclick="shareResult()" class="answer-btn">📤 공유하기</button>
+    <button onclick="restartQuiz()" class="back-btn">🔄 처음으로</button>
 </div>
 
 </div>
@@ -106,20 +109,15 @@ let history = [];
 
 const QUESTIONS = [
 { text:"탱이십니까? 쫄이십니까?", img:"", answers:["탱","쫄"] },
-{ text:"임시 문항 2", img:"image/q2.jpg", answers:["임시1","임시2"] },
-{ text:"임시 문항 3", img:"image/q3.jpg", answers:["임시1","임시2"] },
-{ text:"임시 문항 4", img:"image/q4.jpg", answers:["임시1","임시2"] },
-{ text:"임시 문항 5", img:"image/q5.jpg", answers:["임시1","임시2"] },
-{ text:"임시 문항 6", img:"image/q6.jpg", answers:["임시1","임시2"] },
-{ text:"임시 문항 7", img:"image/q7.jpg", answers:["임시1","임시2"] },
-{ text:"임시 문항 8", img:"image/q8.jpg", answers:["임시1","임시2"] },
-{ text:"임시 문항 9", img:"image/q9.jpg", answers:["임시1","임시2"] },
-{ text:"임시 문항 10", img:"image/q10.jpg", answers:["임시1","임시2"] },
-{ text:"임시 문항 11", img:"image/q11.jpg", answers:["임시1","임시2"] },
-{ text:"임시 문항 12", img:"image/q12.jpg", answers:["임시1","임시2"] },
-{ text:"임시 문항 13", img:"image/q13.jpg", answers:["임시1","임시2"] },
-{ text:"임시 문항 14", img:"image/q14.jpg", answers:["임시1","임시2"] },
-{ text:"임시 문항 15", img:"image/q15.jpg", answers:["임시1","임시2"] }
+{ text:"임시 문항 2", img:"", answers:["임시1","임시2"] },
+{ text:"임시 문항 3", img:"", answers:["임시1","임시2"] },
+{ text:"임시 문항 4", img:"", answers:["임시1","임시2"] },
+{ text:"임시 문항 5", img:"", answers:["임시1","임시2"] },
+{ text:"임시 문항 6", img:"", answers:["임시1","임시2"] },
+{ text:"임시 문항 7", img:"", answers:["임시1","임시2"] },
+{ text:"임시 문항 8", img:"", answers:["임시1","임시2"] },
+{ text:"임시 문항 9", img:"", answers:["임시1","임시2"] },
+{ text:"방생네컷 사랑하시나요", img:"image/bsnc.png", answers:["예","예"] }
 ];
 
 const A_RESULTS = [
@@ -129,10 +127,10 @@ const A_RESULTS = [
 ];
 
 const B_RESULTS = [
-{ title:"머니머니패키지", img:"image/mmpakage.jpg", desc:"머니머니패키지" },
-{ title:"필름 바이 에디", img:"image/f-eddy", desc:"필름 바이 에디" },
-{ title:"필름 바이 스티브", img:"image/f-steve", desc:"필름 바이 스티브" },
-{ title:"필름 바이 밥", img:"image/f-bob", desc:"필름 바이 밥" }
+{ title:"머니머니패키지", img:"image/mmpakage.png", desc:"머니머니패키지" },
+{ title:"필름 바이 에디", img:"image/f-eddy.png", desc:"필름 바이 에디" },
+{ title:"필름 바이 스티브", img:"image/f-steve.png", desc:"필름 바이 스티브" },
+{ title:"필름 바이 밥", img:"image/f-bob.png", desc:"필름 바이 밥" }
 ];
 
 function loadQuestion(){
@@ -194,6 +192,36 @@ function showResult(){
 }
 
 loadQuestion();
+
+function shareResult(){
+    const title = document.getElementById("resultTitle").innerText;
+    const text = document.getElementById("resultDesc").innerText;
+    const url = window.location.href;
+
+    if(navigator.share){
+        navigator.share({
+            title: title,
+            text: text,
+            url: url
+        });
+    } else {
+        navigator.clipboard.writeText(url);
+        alert("링크가 복사되었습니다.");
+    }
+}
+
+function restartQuiz(){
+    currentQuestion = 1;
+    group = null;
+    history = [];
+
+    document.getElementById("resultCard").classList.add("hidden");
+    document.getElementById("quizCard").classList.remove("hidden");
+    document.getElementById("backBtn").classList.add("hidden");
+
+    loadQuestion();
+}
+
 
 </script>
 </body>
