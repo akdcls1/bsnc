@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>방탈출 추천 AI</title>
@@ -288,9 +289,22 @@ function showResult(){
     document.getElementById("resultImage").src = randomResult.img;
 }
 
-function shareResult(){
-    navigator.clipboard.writeText(window.location.href);
-    alert("링크가 복사되었습니다.");
+async function shareResult(){
+    const card = document.getElementById("resultCard");
+
+    const canvas = await html2canvas(card);
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+
+    const file = new File([blob], "result.png", { type: "image/png" });
+
+    if(navigator.share){
+        await navigator.share({
+            files: [file],
+            title: "방탈출 추천 결과"
+        });
+    } else {
+        alert("이미지 공유는 모바일에서 가능합니다.");
+    }
 }
 
 function restartQuiz(){
