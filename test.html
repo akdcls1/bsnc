@@ -69,10 +69,10 @@ body{
 }
 
 img{
-    width:100%;
-    max-width:100%;
-    height:auto;
-    max-height:400px;
+    width:100%;          /* 부모 영역에 맞춤 */
+    max-width:100%;      /* 절대 넘지 않음 */
+    height:auto;         /* 비율 유지 */
+    max-height:400px;    /* 너무 길어지는 것 방지 */
     object-fit:contain;
     border-radius:15px;
     margin:15px 0;
@@ -134,7 +134,7 @@ button:hover{
     <div id="progressText"></div>
 
     <h2 id="questionText"></h2>
-    <img id="questionImage" class="hidden" alt="question image">
+    <img id="questionImage">
 
     <button class="answer-btn" onclick="answer(0)"></button>
     <button class="answer-btn" onclick="answer(1)"></button>
@@ -145,7 +145,7 @@ button:hover{
 <!-- 결과 -->
 <div id="resultCard" class="card hidden">
     <h2 id="resultTitle"></h2>
-    <img id="resultImage" alt="result image">
+    <img id="resultImage">
     <p id="resultDesc"></p>
 
     <button onclick="shareResult()" class="answer-btn">📤 공유하기</button>
@@ -155,10 +155,10 @@ button:hover{
 </div>
 
 <script>
+
 let currentQuestion = 1;
 let group = null;
-let answerHistory = [];          // 기존 history 배열 이름 충돌 방지
-let selectedResultIndex = null;  // 공유용(결과 인덱스)
+let history = [];
 
 const QUESTIONS = [
 { text:"탱인가요? 쫄인가요?", img:"", answers:["탱","쫄"] },
@@ -210,12 +210,12 @@ function playClickSound(){
     const osc = ctx.createOscillator();
     const gainNode = ctx.createGain();
 
-    osc.type = "sine";
-    osc.frequency.value = 440;
+    osc.type = "sine";          // 부드러운 음색
+    osc.frequency.value = 440;  // 톤 낮춤 (기존 600 → 440)
 
     gainNode.gain.setValueAtTime(0, ctx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 0.02);
-    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.15);
+    gainNode.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 0.02);  // 부드럽게 올라감 (볼륨 5%)
+    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.15);     // 부드럽게 꺼짐
 
     osc.connect(gainNode);
     gainNode.connect(ctx.destination);
@@ -234,15 +234,7 @@ function startQuiz(){
 function loadQuestion(){
     const q = QUESTIONS[currentQuestion-1];
     document.getElementById("questionText").innerText = q.text;
-
-    const imgEl = document.getElementById("questionImage");
-    if (q.img) {
-        imgEl.src = q.img;
-        imgEl.classList.remove("hidden");
-    } else {
-        imgEl.removeAttribute("src");
-        imgEl.classList.add("hidden");
-    }
+    document.getElementById("questionImage").src = q.img;
 
     const btns = document.querySelectorAll("#quizCard .answer-btn");
     btns[0].innerText = q.answers[0];
@@ -260,7 +252,7 @@ function updateProgress(){
 
 function answer(choice){
     playClickSound();
-    answerHistory.push(choice);
+    history.push(choice);
 
     if(currentQuestion === 1){
         group = choice === 0 ? "A" : "B";
@@ -276,14 +268,10 @@ function answer(choice){
 }
 
 function goBack(){
-    if (currentQuestion <= 1) return;
-
     currentQuestion--;
-    answerHistory.pop();
-
+    history.pop();
     if(currentQuestion === 1){
         document.getElementById("backBtn").classList.add("hidden");
-        group = null; // 첫 질문으로 돌아가면 그룹도 리셋
     }
     loadQuestion();
 }
@@ -293,102 +281,26 @@ function showResult(){
     document.getElementById("resultCard").classList.remove("hidden");
 
     const results = group === "A" ? A_RESULTS : B_RESULTS;
-    selectedResultIndex = Math.floor(Math.random() * results.length);
-    const r = results[selectedResultIndex];
+    const randomResult = results[Math.floor(Math.random()*results.length)];
 
-    document.getElementById("resultTitle").innerText = r.title;
-    document.getElementById("resultDesc").innerText = r.desc;
-    document.getElementById("resultImage").src = r.img;
-
-    // 공유 링크(깃헙 페이지) 만들기: ?g=A&r=3
-    const u = new URL(window.location.href);
-    u.searchParams.set("g", group);
-    u.searchParams.set("r", String(selectedResultIndex));
-    window.history.replaceState(null, "", u.toString());
+    document.getElementById("resultTitle").innerText = randomResult.title;
+    document.getElementById("resultDesc").innerText = randomResult.desc;
+    document.getElementById("resultImage").src = randomResult.img;
 }
 
-async function shareResult(){
-    if (!group || selectedResultIndex === null) return;
-
-    const title = document.getElementById("resultTitle").innerText;
-    const desc  = document.getElementById("resultDesc").innerText;
-
-    const u = new URL(window.location.href);
-    u.searchParams.set("g", group);
-    u.searchParams.set("r", String(selectedResultIndex));
-    const shareUrl = u.toString();
-
-    const shareData = {
-        title: "방탈출 추천 결과",
-        text: `내 결과: ${title}\n${desc}\n\n링크 열면 결과가 그대로 떠요!`,
-        url: shareUrl
-    };
-
-    // 지원되는 브라우저(주로 모바일): 공유 시트
-    if (navigator.share) {
-        try {
-            await navigator.share(shareData);
-            return;
-        } catch (err) {
-            console.log("공유 취소/오류", err);
-        }
-    }
-
-    // fallback: 링크 복사
-    try {
-        await navigator.clipboard.writeText(shareUrl);
-        alert("공유 링크가 복사되었습니다!\n붙여넣기 해서 보내면 돼요.");
-    } catch (e) {
-        window.prompt("아래 링크를 복사해서 공유하세요:", shareUrl);
-    }
+function shareResult(){
+    alert("공유하기 기능은 없습니다. 캡쳐하세요 ㅋ");
 }
 
 function restartQuiz(){
     currentQuestion = 1;
     group = null;
-    answerHistory = [];
-    selectedResultIndex = null;
+    history = [];
 
     document.getElementById("resultCard").classList.add("hidden");
-    document.getElementById("quizCard").classList.add("hidden");
     document.getElementById("introCard").classList.remove("hidden");
-    document.getElementById("backBtn").classList.add("hidden");
-
-    // 주소창 파라미터 제거
-    const u = new URL(window.location.href);
-    u.search = "";
-    window.history.replaceState(null, "", u.toString());
 }
 
-// 링크로 들어오면 결과 화면을 바로 복원: ?g=A&r=3
-function loadResultFromURL(){
-    const u = new URL(window.location.href);
-    const g = u.searchParams.get("g");
-    const r = u.searchParams.get("r");
-
-    if (!g || r === null) return;
-
-    const results = (g === "A") ? A_RESULTS : (g === "B" ? B_RESULTS : null);
-    if (!results) return;
-
-    const idx = Number(r);
-    if (!Number.isInteger(idx) || idx < 0 || idx >= results.length) return;
-
-    group = g;
-    selectedResultIndex = idx;
-
-    // 화면 전환
-    document.getElementById("introCard").classList.add("hidden");
-    document.getElementById("quizCard").classList.add("hidden");
-    document.getElementById("resultCard").classList.remove("hidden");
-
-    const res = results[idx];
-    document.getElementById("resultTitle").innerText = res.title;
-    document.getElementById("resultDesc").innerText = res.desc;
-    document.getElementById("resultImage").src = res.img;
-}
-
-window.addEventListener("DOMContentLoaded", loadResultFromURL);
 </script>
 </body>
 </html>
