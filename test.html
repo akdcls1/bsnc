@@ -3,15 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>임시 테스트</title>
+<title>방탈출 추천 AI</title>
 
 <style>
-body {
+body{
     margin:0;
-    font-family: sans-serif;
-    background:#f4f6fa;
+    font-family:'Pretendard', sans-serif;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
     display:flex;
     justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    color:white;
 }
 
 .container{
@@ -21,18 +24,38 @@ body {
 }
 
 .card{
-    background:white;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(15px);
     padding:25px;
-    border-radius:20px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+    border-radius:25px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.4);
     text-align:center;
-    transition:0.3s;
+    animation:fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(20px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+.ai-glow{
+    font-size:22px;
+    font-weight:bold;
+    background:linear-gradient(90deg,#00f2ff,#8e2de2);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation:glow 2s infinite alternate;
+}
+
+@keyframes glow{
+    from{text-shadow:0 0 5px #00f2ff;}
+    to{text-shadow:0 0 20px #8e2de2;}
 }
 
 .progress-container{
     width:100%;
-    height:10px;
-    background:#e0e0e0;
+    height:8px;
+    background:rgba(255,255,255,0.2);
     border-radius:20px;
     overflow:hidden;
     margin-bottom:10px;
@@ -41,17 +64,16 @@ body {
 .progress-bar{
     height:100%;
     width:0%;
-    background:linear-gradient(90deg,#6a11cb,#2575fc);
+    background:linear-gradient(90deg,#00f2ff,#8e2de2);
     transition:0.3s;
 }
 
 img{
-    max-height:600px;
-    height: 400px;
+    max-height:400px;
     object-fit:contain;
     border-radius:15px;
     margin:15px 0;
-    background:#eee;
+    background:#111;
 }
 
 button{
@@ -59,27 +81,54 @@ button{
     padding:14px;
     margin:8px 0;
     border:none;
-    border-radius:12px;
+    border-radius:15px;
     font-size:16px;
     font-weight:bold;
     cursor:pointer;
+    transition:0.2s;
 }
 
-.answer-btn{ background:#2575fc; color:white; }
-.back-btn{ background:#ccc; }
+button:hover{
+    transform:scale(1.03);
+}
+
+.answer-btn{
+    background:linear-gradient(90deg,#00f2ff,#8e2de2);
+    color:white;
+}
+
+.back-btn{
+    background:#999;
+    color:white;
+}
 
 .hidden{ display:none; }
+
+.footer{
+    margin-top:20px;
+    font-size:13px;
+    opacity:0.7;
+}
 </style>
 </head>
 <body>
 
 <div class="container">
 
-<div id="quizCard" class="card">
+<!-- 인트로 -->
+<div id="introCard" class="card">
+    <div class="ai-glow">안녕하세요.</div>
+    <p>방탈출 추천 AI입니다.</p>
+    <button class="answer-btn" onclick="startQuiz()">시작하기</button>
+    <div class="footer">제작자: 녕펀,ash</div>
+</div>
+
+<!-- 퀴즈 -->
+<div id="quizCard" class="card hidden">
     <div class="progress-container">
         <div id="progressBar" class="progress-bar"></div>
     </div>
-    <div id="progressText">1 / 15</div>
+    <div id="progressText"></div>
 
     <h2 id="questionText"></h2>
     <img id="questionImage">
@@ -90,12 +139,13 @@ button{
     <button id="backBtn" class="back-btn hidden" onclick="goBack()">← 이전</button>
 </div>
 
+<!-- 결과 -->
 <div id="resultCard" class="card hidden">
     <h2 id="resultTitle"></h2>
     <img id="resultImage">
     <p id="resultDesc"></p>
 
-   <button onclick="shareResult()" class="answer-btn">📤 공유하기</button>
+    <button onclick="shareResult()" class="answer-btn">📤 공유하기</button>
     <button onclick="restartQuiz()" class="back-btn">🔄 처음으로</button>
 </div>
 
@@ -108,15 +158,15 @@ let group = null;
 let history = [];
 
 const QUESTIONS = [
-{ text:"탱이십니까? 쫄이십니까?", img:"", answers:["탱","쫄"] },
-{ text:"임시 문항 2", img:"", answers:["임시1","임시2"] },
-{ text:"임시 문항 3", img:"", answers:["임시1","임시2"] },
-{ text:"임시 문항 4", img:"", answers:["임시1","임시2"] },
-{ text:"임시 문항 5", img:"", answers:["임시1","임시2"] },
-{ text:"임시 문항 6", img:"", answers:["임시1","임시2"] },
-{ text:"임시 문항 7", img:"", answers:["임시1","임시2"] },
-{ text:"임시 문항 8", img:"", answers:["임시1","임시2"] },
-{ text:"임시 문항 9", img:"", answers:["임시1","임시2"] },
+{ text:"탱인가요? 쫄인가요?", img:"", answers:["탱","쫄"] },
+{ text:"외향형(E)인가요? 내향형(I)인가요?", img:"", answers:["외향형(E)","내향형(I)"]},
+{ text:"방탈출을 얼마나 하셨나요?", img:"", answers:["300방↑","300방↓"] },
+{ text:"테마에서 더 중요하게 생각하는 것", img:"", answers:["문제","인테리어"] },
+{ text:"혼방을 할 수 있다?", img:"", answers:["가능","불가능"] },
+{ text:"'삑딱쾅!' 당신의 반응은? ", img:"", answers:["?","어맛!"] },
+{ text:"방탈출 성향은?", img:"", answers:["문제방","이머시브"] },
+{ text:"방탈출 스타일은?", img:"", answers:["노힌노탈","탈출우선"] },
+{ text:"1+1은?", img:"", answers:["2","귀요미"] },
 { text:"활동 열심히 하실거죠?", img:"image/bsnc.png", answers:["예","예"] }
 ];
 
@@ -151,12 +201,39 @@ const B_RESULTS = [
 { title:"용팔도령", img:"image/out horror/yong8.png", desc:"용팔도령" }
 ];
 
+function playClickSound(){
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    osc.type = "sine";          // 부드러운 음색
+    osc.frequency.value = 440;  // 톤 낮춤 (기존 600 → 440)
+
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 0.02);  // 부드럽게 올라감 (볼륨 5%)
+    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.15);     // 부드럽게 꺼짐
+
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.15);
+}
+
+function startQuiz(){
+    playClickSound();
+    document.getElementById("introCard").classList.add("hidden");
+    document.getElementById("quizCard").classList.remove("hidden");
+    loadQuestion();
+}
+
 function loadQuestion(){
     const q = QUESTIONS[currentQuestion-1];
     document.getElementById("questionText").innerText = q.text;
     document.getElementById("questionImage").src = q.img;
 
-    const btns = document.querySelectorAll(".answer-btn");
+    const btns = document.querySelectorAll("#quizCard .answer-btn");
     btns[0].innerText = q.answers[0];
     btns[1].innerText = q.answers[1];
 
@@ -171,6 +248,7 @@ function updateProgress(){
 }
 
 function answer(choice){
+    playClickSound();
     history.push(choice);
 
     if(currentQuestion === 1){
@@ -187,14 +265,12 @@ function answer(choice){
 }
 
 function goBack(){
-    if(currentQuestion > 1){
-        history.pop();
-        currentQuestion--;
-        if(currentQuestion === 1){
-            document.getElementById("backBtn").classList.add("hidden");
-        }
-        loadQuestion();
+    currentQuestion--;
+    history.pop();
+    if(currentQuestion === 1){
+        document.getElementById("backBtn").classList.add("hidden");
     }
+    loadQuestion();
 }
 
 function showResult(){
@@ -205,27 +281,13 @@ function showResult(){
     const randomResult = results[Math.floor(Math.random()*results.length)];
 
     document.getElementById("resultTitle").innerText = randomResult.title;
-    document.getElementById("resultImage").src = randomResult.img;
     document.getElementById("resultDesc").innerText = randomResult.desc;
+    document.getElementById("resultImage").src = randomResult.img;
 }
 
-loadQuestion();
-
 function shareResult(){
-    const title = document.getElementById("resultTitle").innerText;
-    const text = document.getElementById("resultDesc").innerText;
-    const url = window.location.href;
-
-    if(navigator.share){
-        navigator.share({
-            title: title,
-            text: text,
-            url: url
-        });
-    } else {
-        navigator.clipboard.writeText(url);
-        alert("링크가 복사되었습니다.");
-    }
+    navigator.clipboard.writeText(window.location.href);
+    alert("링크가 복사되었습니다.");
 }
 
 function restartQuiz(){
@@ -234,12 +296,8 @@ function restartQuiz(){
     history = [];
 
     document.getElementById("resultCard").classList.add("hidden");
-    document.getElementById("quizCard").classList.remove("hidden");
-    document.getElementById("backBtn").classList.add("hidden");
-
-    loadQuestion();
+    document.getElementById("introCard").classList.remove("hidden");
 }
-
 
 </script>
 </body>
