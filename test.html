@@ -294,20 +294,39 @@ function showResult(){
 async function shareResult(){
     const card = document.getElementById("resultCard");
 
-    const canvas = await html2canvas(card);
-    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+    const canvas = await html2canvas(card, {
+        backgroundColor: null,
+        scale: 2
+    });
+
+    const blob = await new Promise(resolve =>
+        canvas.toBlob(resolve, "image/png")
+    );
 
     const file = new File([blob], "result.png", { type: "image/png" });
 
-    if(navigator.share){
-        await navigator.share({
-            files: [file],
-            title: "방탈출 추천 결과"
-        });
+    // 파일 공유 지원 여부 체크
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+            await navigator.share({
+                files: [file],
+                title: "방탈출 추천 결과"
+            });
+        } catch (err) {
+            console.log("공유 취소 또는 오류", err);
+        }
     } else {
-        alert("이미지 공유는 모바일에서 가능합니다.");
+        // 파일 공유 지원 안 하면 이미지 다운로드로 대체
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "result.png";
+        a.click();
+        URL.revokeObjectURL(url);
+        alert("이미지가 다운로드되었습니다.");
     }
 }
+
 
 function restartQuiz(){
     currentQuestion = 1;
