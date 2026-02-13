@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>방탈출 추천 AI</title>
 
+<!-- 카카오 SDK 추가 -->
+<script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+
 <style>
 body{
     margin:0;
@@ -156,9 +159,14 @@ button:hover{
 
 <script>
 
+// 카카오 SDK 초기화 (여기에 본인의 JavaScript 키를 입력하세요)
+// https://developers.kakao.com/console/app 에서 앱을 생성하고 JavaScript 키를 발급받으세요
+Kakao.init('89cf15b3d513326c669370cc3bd9aecd'); // 여기에 본인의 카카오 앱 JavaScript 키 입력
+
 let currentQuestion = 1;
 let group = null;
 let history = [];
+let currentResult = null; // 현재 결과를 저장할 변수
 
 const QUESTIONS = [
 { text:"탱인가요? 쫄인가요?", img:"", answers:["탱","쫄"] },
@@ -283,13 +291,47 @@ function showResult(){
     const results = group === "A" ? A_RESULTS : B_RESULTS;
     const randomResult = results[Math.floor(Math.random()*results.length)];
 
+    // 현재 결과를 저장
+    currentResult = randomResult;
+
     document.getElementById("resultTitle").innerText = randomResult.title;
     document.getElementById("resultDesc").innerText = randomResult.desc;
     document.getElementById("resultImage").src = randomResult.img;
 }
 
 function shareResult(){
-    alert("공유하기 기능은 없습니다. 캡쳐하세요 ㅋ");
+    if (!Kakao.isInitialized()) {
+        alert('카카오 SDK가 초기화되지 않았습니다. JavaScript 키를 확인해주세요.');
+        return;
+    }
+
+    // 현재 페이지 URL (실제 배포 시 본인의 도메인으로 변경)
+    const pageUrl = window.location.href;
+    
+    // 결과 이미지의 절대 URL 생성
+    const imageUrl = new URL(currentResult.img, window.location.href).href;
+
+    Kakao.Share.sendDefault({
+        objectType: 'feed',
+        content: {
+            title: '방탈출 추천 AI',
+            description: `나의 추천 방탈출은 "${currentResult.title}"!`,
+            imageUrl: imageUrl, // 결과 이미지
+            link: {
+                mobileWebUrl: pageUrl,
+                webUrl: pageUrl,
+            },
+        },
+        buttons: [
+            {
+                title: '나도 테스트하러 가기',
+                link: {
+                    mobileWebUrl: pageUrl,
+                    webUrl: pageUrl,
+                },
+            }
+        ],
+    });
 }
 
 function restartQuiz(){
